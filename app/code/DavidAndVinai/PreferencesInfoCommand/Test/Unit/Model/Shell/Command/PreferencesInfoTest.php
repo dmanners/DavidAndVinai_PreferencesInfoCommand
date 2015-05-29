@@ -1,6 +1,5 @@
 <?php
 
-
 namespace DavidAndVinai\PreferencesInfoCommand\Test\Unit\Model\Shell\Command;
 
 use DavidAndVinai\PreferencesInfoCommand\Model\Shell\Command\PreferencesInfo;
@@ -53,6 +52,17 @@ class PreferencesInfoTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string[] $matchingPreferences
+     */
+    private function setExpectedMatches(array $matchingPreferences)
+    {
+        $expectedOutputLines = array_map(function($type) use ($matchingPreferences) {
+            return sprintf('<info>%s => %s</info>', $type, $matchingPreferences[$type]);
+        }, array_keys($matchingPreferences));
+        $this->setExpectedOutputLines($expectedOutputLines);
+    }
+
+    /**
      * @param string[] $expectedOutputLines
      */
     private function setExpectedOutputLines(array $expectedOutputLines)
@@ -81,26 +91,26 @@ class PreferencesInfoTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function itShouldOutputNothingIfThereIsNoMatch()
+    public function itShouldFindNothingIfThereIsNoMatch()
     {
         $this->setConfiguredPreferencesFixture([
             'Test\\Configured\\Preference' => 'Test\\Target\\Class'
         ]);
         $this->setRequestedInterfaces(['Non\\Existing\\Preference']);
-        $this->setExpectedOutputLines([]);
+        $this->setExpectedMatches([]);
         $this->executeCommand();
     }
 
     /**
      * @test
      */
-    public function itShouldOutputNothingIfWithoutArguments()
+    public function itShouldFindNothingIfNoInterfacesWhereRequestedAsCommandArguments()
     {
         $this->setConfiguredPreferencesFixture([
             'Test\\Configured\\Preference' => 'Test\\Target\\Class'
         ]);
         $this->setRequestedInterfaces([]);
-        $this->setExpectedOutputLines([]);
+        $this->setExpectedMatches([]);
         $this->executeCommand();
     }
 
@@ -108,13 +118,14 @@ class PreferencesInfoTest extends \PHPUnit_Framework_TestCase
      * @test
      * @dataProvider matchingRequestedInterfacesDataProvider
      */
-    public function itShouldOutputAMatchAtTheEnd($requestedInterface)
+    public function itShouldFindAMatchIfTheRequestedInterfaceMatchesFromTheRight($requestedInterface)
     {
-        $this->setConfiguredPreferencesFixture([
+        $preferencesFixture = [
             'Test\\Configured\\Preference' => 'Test\\Target\\Class'
-        ]);
+        ];
+        $this->setConfiguredPreferencesFixture($preferencesFixture);
         $this->setRequestedInterfaces([$requestedInterface]);
-        $this->setExpectedOutputLines(['<info>Test\\Configured\\Preference => Test\\Target\\Class</info>']);
+        $this->setExpectedMatches($preferencesFixture);
         $this->executeCommand();
     }
 
@@ -140,63 +151,71 @@ class PreferencesInfoTest extends \PHPUnit_Framework_TestCase
             'Test\\Configured\\Preference' => 'Test\\Target\\Class'
         ]);
         $this->setRequestedInterfaces(['Test']);
-        $this->setExpectedOutputLines([]);
+        $this->setExpectedMatches([]);
         $this->executeCommand();
     }
 
     /**
      * @test
      */
-    public function itShouldOutputTwoMatches()
+    public function itShouldNotMatchInTheMiddleOfThePreference()
     {
         $this->setConfiguredPreferencesFixture([
+            'Test\\Configured\\Preference' => 'Test\\Target\\Class'
+        ]);
+        $this->setRequestedInterfaces(['Configured']);
+        $this->setExpectedMatches([]);
+        $this->executeCommand();
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldFindTwoMatchesForOneRequestedType()
+    {
+        $preferencesFixture = [
             'First\\Configured\\Preference' => 'Test\\Target\\ClassA',
             'Second\\Configured\\Preference' => 'Test\\Target\\ClassB'
-        ]);
+        ];
+        $this->setConfiguredPreferencesFixture($preferencesFixture);
         $this->setRequestedInterfaces(['Configured\\Preference']);
-        $this->setExpectedOutputLines([
-            '<info>First\\Configured\\Preference => Test\\Target\\ClassA</info>',
-            '<info>Second\\Configured\\Preference => Test\\Target\\ClassB</info>',
-        ]);
+        $this->setExpectedMatches($preferencesFixture);
         $this->executeCommand();
     }
 
     /**
      * @test
      */
-    public function itShouldOutputEachMatchedPreferenceOnce()
+    public function itShouldFindOneMatchForBothRequestedInterfaces()
     {
-        $this->setConfiguredPreferencesFixture([
+        $preferencesFixture = [
             'Configured\\Preference' => 'Test\\Target\\Class',
-        ]);
+        ];
+        $this->setConfiguredPreferencesFixture($preferencesFixture);
         $this->setRequestedInterfaces(['Configured\\Preference', 'Preference']);
-        $this->setExpectedOutputLines([
-            '<info>Configured\\Preference => Test\\Target\\Class</info>',
-        ]);
+        $this->setExpectedMatches($preferencesFixture);
         $this->executeCommand();
     }
 
     /**
      * @test
      */
-    public function itShouldOutputTwoMatchesForTwoRequestedInterfaces()
+    public function itShouldFindTwoMatchesForTwoRequestedInterfaces()
     {
-        $this->setConfiguredPreferencesFixture([
+        $preferencesFixture = [
             'FixtureA\\Preference' => 'Test\\Target\\ClassA',
             'FixtureB\\Preference' => 'Test\\Target\\ClassB'
-        ]);
+        ];
+        $this->setConfiguredPreferencesFixture($preferencesFixture);
         $this->setRequestedInterfaces(['FixtureA\\Preference', 'FixtureB\\Preference']);
-        $this->setExpectedOutputLines([
-            '<info>FixtureA\\Preference => Test\\Target\\ClassA</info>',
-            '<info>FixtureB\\Preference => Test\\Target\\ClassB</info>',
-        ]);
+        $this->setExpectedMatches($preferencesFixture);
         $this->executeCommand();
     }
 
     /**
      * @test
      */
-    public function itShouldOutputOnlyMatchingPreferences()
+    public function itShouldFindOnlyTheMatchingPreferences()
     {
         $this->setConfiguredPreferencesFixture([
             'First\\Configured\\Preference' => 'Test\\Target\\Class1',
@@ -204,9 +223,9 @@ class PreferencesInfoTest extends \PHPUnit_Framework_TestCase
             'Third\\Configured\\Preference' => 'Test\\Target\\Class3',
         ]);
         $this->setRequestedInterfaces(['First\\Configured\\Preference', 'Third\\Configured\\Preference']);
-        $this->setExpectedOutputLines([
-            '<info>First\\Configured\\Preference => Test\\Target\\Class1</info>',
-            '<info>Third\\Configured\\Preference => Test\\Target\\Class3</info>',
+        $this->setExpectedMatches([
+            'First\\Configured\\Preference' => 'Test\\Target\\Class1',
+            'Third\\Configured\\Preference' => 'Test\\Target\\Class3',
         ]);
         $this->executeCommand();
     }
