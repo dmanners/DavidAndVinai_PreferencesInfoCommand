@@ -34,7 +34,7 @@ class PreferencesInfo extends Command
         $this->addArgument(
             self::INPUT_KEY_INTERFACE,
             InputArgument::IS_ARRAY,
-            'List of interfaces or class names to list the preference for.'
+            'List of interfaces or class names for which to show the preferences configuration.'
         );
 
         $this->setName('preferences:info')
