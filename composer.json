@@ -1,10 +1,10 @@
 {
-    "name": "davidandvinai/preferencesinfocommand",
+    "name": "davidandvinai/module-preferencesinfocommand",
     "description": "Magento 2 bin/magento command to display configured preferences for classes or interfaces",
     "type": "magento2-module",
     "license": "BSD-3-Clause",
     "require": {
-        "php": "~5.6.0|~7.0"
+        "php": "~7.0"
     },
     "autoload": {
         "files": [
