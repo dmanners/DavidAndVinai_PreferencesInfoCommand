@@ -1,8 +1,7 @@
 bin/magento command to display configured preferences for classes or interfaces
 ===============================================================================
 
-Exploratory coding of plugins for the bin/magento cli tool.
-Maybe this simple command module is useful as an example for someone.
+A bin/magento command that will show you the configured preferences for classes and interfaces.
 
 Description
 -----------
@@ -23,11 +22,15 @@ Magento\Framework\DB\LoggerInterface => Magento\Framework\DB\Logger\Null
 
 Compatibility
 -------------
-- Magento 2 version 0.74.0-beta10
+- Originally written on Magento 2 version 0.74.0-beta10,
+- Currently tested on 2.1.4,
 
 Installation Instructions
 -------------------------
-Install it. composer.json following, maybe.
+```sh
+composer require davidandvinai/module-preferencesinfocommand
+bin/magento module:enable DavidAndVinai_PreferencesInfoCommand
+```
 
 Uninstallation
 --------------
@@ -50,4 +53,4 @@ BSD 3-Clause.
 
 Copyright
 ---------
-(c) 2015 Vinai Kopp, David Manners
+(c) 2017 Vinai Kopp, David Manners

@@ -1,0 +1,27 @@
+{
+    "name": "davidandvinai/module-preferencesinfocommand",
+    "description": "Magento 2 bin/magento command to display configured preferences for classes or interfaces",
+    "type": "magento2-module",
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": "~7.0"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "DavidAndVinai\\PreferencesInfoCommand\\": ""
+        }
+    },
+    "authors": [
+        {
+            "name": "David Manners",
+            "email": "dmanners87@gmail.com"
+        },
+        {
+            "name": "Vinai Kopp",
+            "email": "contact@vinaikopp.com"
+        }
+    ]
+}
